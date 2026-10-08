@@ -4,12 +4,6 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Kirana Calculator</title>
-<meta name="theme-color" content="#14532d">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Maal Hisaab">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%2314532d'/%3E%3Ctext x='50' y='72' font-size='62' font-weight='bold' text-anchor='middle' fill='%23fbbf24' font-family='sans-serif'%3E%E2%82%B9%3C/text%3E%3C/svg%3E">
-<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%2314532d'/%3E%3Ctext x='50' y='72' font-size='62' font-weight='bold' text-anchor='middle' fill='%23fbbf24' font-family='sans-serif'%3E%E2%82%B9%3C/text%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -41,23 +35,7 @@ body{
   min-height:100vh;
 }
 .wrap{max-width:480px;margin:0 auto;padding:14px 14px 28px}
-.top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:4px 2px 12px}
-h1{font-size:22px;margin:0;font-weight:800;line-height:1.1}
-.install{
-  flex:none;border:0;border-radius:14px;height:48px;padding:0 14px;font:inherit;font-weight:800;
-  font-size:16px;background:var(--sun);color:var(--sun-ink);cursor:pointer;line-height:1
-}
-.install:active{transform:scale(.97)}
-.install:focus-visible,.sheet button:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
-.sheet{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:flex-end;justify-content:center;z-index:10}
-.sheet .box{
-  width:100%;max-width:480px;background:var(--card);color:var(--ink);border-radius:24px 24px 0 0;
-  padding:20px 18px calc(20px + env(safe-area-inset-bottom,0px))
-}
-.sheet h2{margin:0 0 10px;font-size:22px;font-weight:800}
-.sheet ol{margin:0 0 16px;padding-left:22px;font-size:18px;font-weight:500;line-height:1.5}
-.sheet button{width:100%;height:56px;border:0;border-radius:16px;font:inherit;font-weight:800;font-size:19px;
-  background:var(--green);color:var(--green-ink);cursor:pointer}
+h1{font-size:22px;margin:4px 2px 12px;font-weight:800}
 .tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;background:var(--line);padding:6px;border-radius:18px}
 .tab{
   border:0;border-radius:13px;padding:14px 6px;font:inherit;font-weight:800;font-size:19px;
@@ -97,18 +75,7 @@ input:focus{border-color:var(--green)}
 </head>
 <body>
 <div class="wrap">
-  <div class="top">
-    <h1>Maal ka Hisaab</h1>
-    <button class="install" id="install" hidden>📲 App Install</button>
-  </div>
-
-  <div class="sheet" id="sheet" hidden>
-    <div class="box" role="dialog" aria-labelledby="sheetTitle">
-      <h2 id="sheetTitle">Phone mein App banao</h2>
-      <ol id="steps"></ol>
-      <button id="sheetOk">Theek hai</button>
-    </div>
-  </div>
+  <h1>Maal ka Hisaab</h1>
 
   <div class="tabs" role="tablist">
     <button class="tab" role="tab" id="t1" aria-selected="true">Gram → ₹<small>Kitne paise?</small></button>
@@ -227,59 +194,6 @@ input:focus{border-color:var(--green)}
   };
 
   calc();
-
-  // ---- App install ----
-  var installBtn = $("install"), sheet = $("sheet"), deferred = null;
-  var standalone = (window.matchMedia && matchMedia("(display-mode: standalone)").matches) || navigator.standalone;
-
-  // Best-effort web app manifest so Chrome/Android can offer a real install
-  try{
-    var icon = "data:image/svg+xml," + encodeURIComponent(
-      "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='#14532d'/>" +
-      "<text x='50' y='72' font-size='62' font-weight='bold' text-anchor='middle' fill='#fbbf24' font-family='sans-serif'>\u20B9</text></svg>");
-    var manifest = {
-      name: "Maal ka Hisaab", short_name: "Maal Hisaab", display: "standalone",
-      start_url: location.href, scope: location.href,
-      background_color: "#f3f7f1", theme_color: "#14532d",
-      icons: [{src: icon, sizes: "any", type: "image/svg+xml", purpose: "any"}]
-    };
-    var link = document.createElement("link");
-    link.rel = "manifest";
-    link.href = URL.createObjectURL(new Blob([JSON.stringify(manifest)], {type: "application/manifest+json"}));
-    document.head.appendChild(link);
-  }catch(e){}
-
-  if(!standalone) installBtn.hidden = false;
-
-  window.addEventListener("beforeinstallprompt", function(e){
-    e.preventDefault();
-    deferred = e;
-  });
-  window.addEventListener("appinstalled", function(){
-    installBtn.hidden = true; deferred = null;
-  });
-
-  function showHelp(){
-    var ua = navigator.userAgent || "";
-    var ios = /iPhone|iPad|iPod/i.test(ua);
-    var steps = ios
-      ? ["Safari mein ye page kholo", "Neeche <b>Share</b> button (⬆️) dabao", "<b>Add to Home Screen</b> chuno", "<b>Add</b> dabao. Ho gaya!"]
-      : ["Chrome mein ye page kholo", "Upar kone mein <b>⋮</b> (teen dot) dabao", "<b>Add to Home screen</b> ya <b>Install app</b> chuno", "<b>Install</b> dabao. Ho gaya!"];
-    $("steps").innerHTML = steps.map(function(s){return "<li>" + s + "</li>"}).join("");
-    sheet.hidden = false;
-    $("sheetOk").focus();
-  }
-
-  installBtn.onclick = function(){
-    if(deferred){
-      deferred.prompt();
-      deferred.userChoice.then(function(){ deferred = null; });
-    }else{
-      showHelp();
-    }
-  };
-  $("sheetOk").onclick = function(){ sheet.hidden = true; };
-  sheet.addEventListener("click", function(e){ if(e.target === sheet) sheet.hidden = true; });
 })();
 </script>
 </body>
